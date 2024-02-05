@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gitCard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdn.canvasjs.com/ga/canvasjs.min.js"></script>
+
+    <script>
+        function searchGitHub() {
+            const username = document.getElementById('ghUsername').value.trim();
+            
+            if (username !== '') {
+                window.location.href = `/${username}`;
+            }
+        }
+    </script>
+
+    <div class="container-lg">
+        <div class="row justify-content-center">
+            <div class="col-md-4 col-12">
+                <form class="mt-4">
+                    <div class="d-flex justify-content-between">
+                        <div class="mb-3 flex-grow-1 me-2">
+                            <input type="text" id="ghUsername" class="form-control" placeholder="GitHub username">
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-primary" onclick="searchGitHub()">Search</button>
+
+                        </div>
+                    </div>
+                </form>
+                <% if (userData) { %>
+                    <div class="card mb-5">
+                        <img src="<%= userData.avatar_url %>" class="card-img-top">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <%= userData.login %>
+                            </h5>
+                            <p class="card-text">
+                                <span class="fst-italic">
+                                    "<%= userData.quote %>"
+                                </span>
+                            </p>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><span class="fw-semibold">Member since: </span>
+                                <%= userData.created_at %>
+                            </li>
+                            <li class="list-group-item"><span class="fw-semibold">Repositories: </span>
+                                <%= userData.public_repos %>
+                            </li>
+                            <li class="list-group-item"><span class="fw-semibold">Followers: </span>
+                                <%= userData.followers %>
+                            </li>
+                            <li class="list-group-item p-0 mb-3" id="chartContainer"
+                                style="height: 250px; width: 100%;">
+
+                            </li>
+
+                        </ul>
+                        <div class="card-body">
+                            <a href="https://github.com/<%= userData.login %>" target="_blank" class="card-link">Profile</a>
+                        </div>
+                    </div>
+                    <% } %>
+                    <% if (err) { %>
+                        <div class="alert alert-danger" role="alert">
+                            GitHub user not found. Please try again.
+                        </div>
+                    <% } %>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function drawChart() {
+            const userInfo = <%- JSON.stringify(userData) %>
+
+            if (!userInfo) {
+                return;
+            }
+
+            const languages = userInfo.languages;
+
+            let piePieces = [];
+            for (const language in languages ) {
+                piePieces.push({ y: languages[language], label: language.toString()})
+            }
+        
+            window.onload = function () {
+                var chart = new CanvasJS.Chart("chartContainer", {
+                    animationEnabled: false,
+                    data: [
+                        {
+                            type: "pie",
+                            startAngle: 240,
+                            yValueFormatString: "##0",
+                            indexLabel: "{label}: {y}",
+                            dataPoints: piePieces,
+                        },
+                    ],
+                });
+
+                chart.render();
+            };
+        }
+
+        drawChart();
+    </script>
+</body>
+
+</html>
