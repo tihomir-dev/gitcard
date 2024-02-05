@@ -1,12 +1,9 @@
 const express = require('express');
 const app = express();
 const path = require('path');
-const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
 const axios = require('axios');
 
-app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride('_method'));
 
 app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs'); 
@@ -26,13 +23,14 @@ app.get('/:username', async (req, res) => {
 
         const repos = await getRepos(userData.repos_url);
 
+        //create a map to store the summed lines of each language the user has in all of his repos
         const map = {};
         
         for (const repo of repos) {
             const languages = await getLanguagesForRepo(repo.languages_url);
 
             for (const language in languages) {
-                if (map[language]) {
+                if (map[language]) { 
                     map[language] += languages[language];
                 } else {
                     map[language] = languages[language];
@@ -66,7 +64,6 @@ async function getLanguagesForRepo(languagesUrl) {
 async function getRandomQuote(){
     return await axios.get('https://zenquotes.io/api/random')
     .then((response) => {
-        console.log(response.data[0].q);
         return response.data[0].q;
     })
 

@@ -94,6 +94,7 @@
 
             const languages = userInfo.languages;
 
+            //make an array of data point for the canvasjs pie chart
             let piePieces = [];
             for (const language in languages ) {
                 piePieces.push({ y: languages[language], label: language.toString()})
